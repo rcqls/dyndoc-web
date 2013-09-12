@@ -1,0 +1,16 @@
+<div id="contentHalfLeft">
+	<h3>Live demo of Dyndoc code</h3> 
+	{#new]codeDyn[#of]CodeEdit[#first][#new}
+	{#new]demoDyn[#of]CodeDemoChooser[#,]:codeDyn[#}
+	<div style="float:left">To update, click the code below or the current dyndoc example: </div> 
+	{#init]codeDyn[#}
+	{#js]codeDyn[#}
+	
+
+</div>
+<div id="contentHalfRight">
+	<h3>Result</h3>
+	{#result]codeDyn[#}
+</div>
+
+{#js]demoDyn[#}

@@ -1,0 +1,16 @@
+[#<]
+{#code]hello[#R]
+a<-rnorm(10)
+a*2
+sd(a)
+[#code}
+
+{#code]test[#R]
+print("this is a test!")
+[#code}
+
+
+{#code]rfig[#R]
+### figure
+hist(rnorm(1000),br=50,prob=TRUE)
+[#code}

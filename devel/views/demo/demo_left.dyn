@@ -1,0 +1,37 @@
+[#>]
+<div id="code_chooser">Click here to choose!</div>
+<div id="code_choice">choice</div>
+<script type="text/javascript">
+$("#code_choice").hide();
+$("#code_chooser").editInPlace({
+		success: function(html) {
+			//alert(html);
+			$.taconite(html);
+			//alert($('#editme-hidden-code').val());
+			$('#code_chooser').text("Click to change the current example: "+$('#code_choice').text());
+			$('#editme').html($('#editme-result').html());
+		},
+		url: "demo_choices",
+		bg_over: "#cff",
+		field_type: "select",
+		save_if_nothing_changed: true,
+		select_options: "[#rb>]$dyndoc_codes_for_site.keys.sort.join(",")[#>]"
+	});
+</script>
+{#hide]
+<p id="code_chooser">Click here to choose!</p>
+<script type="text/javascript">
+ new Ajax.InPlaceCollectionEditor(
+   'code_chooser', 
+   '/demo_choices',
+   	{ 
+   		collection: [[#rb>]$dyndoc_codes_for_site.keys.sort.map{|e| "'"+e+"'"}.join(",")[#>]],
+   		callback: function(form,value) {
+ 			$('editme-code').setValue($('demo-code_'+value).value.escapeHTML());
+ 			return Form.serialize(form);
+ 		}
+   }
+  );
+</script>
+[#rb>]$dyndoc_codes_for_site.each_key do |key| {#>]<input type="hidden" id="demo-code_:{key}" value=':{$dyndoc_codes_for_site[key].gsub("\'","&#39;")}'/><\n>[#>} end
+ [#hide}

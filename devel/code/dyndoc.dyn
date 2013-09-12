@@ -1,0 +1,127 @@
+[#<]
+
+{#code]aaareq[#dyn]
+{#rpng]
+hist(rnorm(1000),br=50,prob=TRUE)
+[#img]{#cqlsweb_auto_img]rfig[#}[#include]:web[#newR]TRUE[#}
+[#code}
+
+{#code]hello[#dyn]
+[#r<]#this is R code without last object returned as output since < at the end
+mister <- "misteR"
+[#rb<]#this is ruby code without last object returned as output since < at the end
+mister = "mister"
+[#<] No need to start the line with a specific character 
+since everything is not output because of <.
+Notice however that dyndoc code is interpreted!
+
+The following lines defines the function hello called later in  
+
+{#def]hello[#,]name[Miss][#>]
+  [from Dyn, |
+  |Hello #{name}]
+[#}
+
+The next command 
+
+[#>]
+
+  [<\t>{#hello#}
+  |<\t>{#hello]Mister[#}
+  |<\t>from ruby, hello :{mister}
+  |<\t>from R, hello :r{mister}]
+
+[#code}
+
+{#code]dyndoc[#dyn]
+[#>] C'est un test!
+[#code}
+
+{#code]if-case[#dyn]
+[#%]If structure
+[#rb<]number=11
+[#>]number :{number} is {#if]number%2==1[#>]odd[#else]even[#if}
+[#rb<]number=28
+[#>]number :{number} is {#if]number%2==1[#>]odd[#else]even[#if}
+
+[#%]Case structure
+[#=]todo[first,third,second,first]
+[#>]This is the list of the translated words in french:
+{#case]#{todo}
+[#when]first[#>][premier ]
+[#when]second[#>][deuxième ]
+[#when]third[#>][troisième ]
+[#case}
+[#code}
+
+{#code]loop[#dyn]
+[#>]In ruby first!
+[#rb>] for cpt in 1..4 do {#>]item:{cpt} [#>}; end
+[#>]<\n>but also,
+[#rb>] (5..8).each do |cpt| {#>]item:{cpt} [#>}; end
+[#\n][#>]<\n>In R then!
+[#R>] for(cpt in 1:4) { {#>]item:r{cpt} [#>} }
+[#>]<\n>but also, 
+[#R>] sapply(5:8,function(cpt) {#>]item:r{cpt} [#>})
+[#code}
+
+{#code]blck_tags[#dyn]
+[#>] 
+
+	[This is two |
+	|lines put in three
+	|lines of code]
+
+[#code}
+
+{#code]vars[#dyn]
+[#>]Text variables from Dyndoc environment: declaration and use
+[#=]toto[TOTO]
+[#>] [#{toto}|]
+[#>]toto+[ and TITI]
+[#>] [#{toto}|]
+[#=]toto[TOTO2]
+[#>] [#{toto}<\n>]
+[#>]Ruby variables from Dyndoc environment: declaration and use
+[#=]toto@[[1,3,2]]
+[#>] [#{toto@}<\n>]
+[#>]R variables from Dyndoc environment: declaration and use
+[#=]toto$[c(1,3,2)]
+[#>]#{toto$}
+[#rb<]	<toto@>[0]= <toto@>.inject(0) { |s,v| s += v }
+ 		<toto:> = <toto:>.downcase
+ 		<toto[1]$> = <toto$>.inject(0) { |s,v| s += v }
+[#>]After ruby: toto (resp. toto@ and toto$) 
+contains #{toto} (resp. #{toto@} and #{toto$})
+[#R<]	<toto@>[1]= 1L
+ 		<toto:> = toupper(<toto:>)
+ 		<toto$>[1] = 1
+[#>]After R: toto (resp. toto@ and toto$) 
+contains #{toto} (resp. #{toto@} and #{toto$})
+[#code}
+
+{#code]def[#dyn]
+[#<] 
+	{#def]toto[#,]par1[value1][#,]par2@[[:value2,"value2bis"]]
+	[#,]ary[<<comp1[valcomp1]<<comp2[valcomp2]] 
+	[#>] 
+		[This is a Dyndoc function
+		|with argument called
+		|with Dyndoc arg1: #{par1} and arg2: #{par2@}
+		|and ary.comp1: #{ary.comp1} and ary.comp2:  #{ary.comp2}] 
+	[#def}
+[#>] 
+	[Call with default parameters:
+	|{#toto#}
+	|Call with updated first parameter:
+	|{#toto]value1bis[#}
+	|Call with updated second and third parameter:
+	|{#toto][#par2@]"value2alt".upcase[#ary.comp2]val2xomp2[#}]
+[#code}
+
+{#code]array_list[#dyn]
+[#=]list[<<a[listAContent]<<b[listBContent]]
+[#=]array[<<[ary1Content]<<[ary2Content]]
+[#>]list content: a=#{list.a}, b=#{list.b}
+array content: #{array.0}, #{array.1}
+[#code}

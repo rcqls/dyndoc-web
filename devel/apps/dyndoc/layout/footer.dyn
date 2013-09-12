@@ -1,0 +1,9 @@
+[#=]::body.end?[<div id="footer">
+    <div id="footerLeft">
+    <a href="http://fullahead.org" title="designed by fullahead.org" class="fullAhead"></a>{#lastmodified#}
+  </div></div>]
+[#>]
+</div>
+#{body.end}
+</body>
+</html>

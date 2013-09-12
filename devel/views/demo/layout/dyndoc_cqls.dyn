@@ -1,0 +1,99 @@
+[#?]#{layout.mathml?}[#>]
+[<!DOCTYPE html    PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">]
+[#?]else[#>]
+[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">]
+[#?]end[#>]
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-EN">
+
+<head>
+  <title> #{layout.title?} </title>
+  <META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8"/>
+  <!--<meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8" />-->
+  <meta name="author" content="fullahead.org" />
+  <meta name="keywords" content="Open Web Design, OWD, Free Web Template, Lazy Days, Fullahead" />
+  <meta name="description" content="A free web template designed by Fullahead.org and hosted on OpenWebDesign.org" />
+  <meta name="robots" content="index, follow, noarchive" />
+  <meta name="googlebot" content="noarchive" />
+  <link href="/stylesheets/reflection/screen_cqls.css" media="screen" rel="Stylesheet" type="text/css" />
+  <link href="/stylesheets/common/style.css" media="screen" rel="Stylesheet" type="text/css" />
+  {#if]#{layout.dhtmlxTabBar?}
+  [#>]
+  <link rel="stylesheet" type="text/css" href="/dhtmlx/TabBar/codebase/dhtmlxtabbar.css">
+  <script  src="/dhtmlx/TabBar/codebase/dhtmlxcommon.js"></script>
+  <script  src="/dhtmlx/TabBar/codebase/dhtmlxtabbar.js"></script>
+  [#if}
+  [#rb<]puts "inside layout";p #{layout.css4uv}
+  [#=]layout.css4uv?[amy]
+  [#>]
+  {#rb>]
+  #puts "layout";p #{=_.css4uv}
+  for css4uv in #{=layout.css4uv}.split(",").uniq.sort do
+    #p css4uv
+    #puts "css binding";p binding;p eval("local_variables",binding)
+    {#>]<link href="/stylesheets/uv/css/:{css4uv}.css" media="screen,projection,print" rel="Stylesheet" type="text/css" /><\n>[#}
+  end
+  [#}
+  [#>]
+  #{styles_for_layout?}
+   <script type="text/javascript" src="/javascripts/jquery-1.6.2.min.js"></script>
+   <script type="text/javascript" src="/javascripts/jquery-ui-1.8.16.custom.min.js"></script>
+   <script type="text/javascript" src="/javascripts/jquery.editinplace.js"></script>
+   <script type="text/javascript" src="/javascripts/jquery.taconite.js"></script>
+</head>
+
+
+<body>
+
+
+  <!-- HEADER: Holds title, subtitle and header images -->
+  <div id="header">
+    <!-- top rounded corner -->
+    <img src="/images/reflection/corner_tl.gif" alt="corner" style="float:left;" />
+
+
+    <!-- Site title and subTitle -->
+    <span class="title">#{layout.logo?}
+      <span class="white">#{layout.team?}</span> team
+      <span class="subTitle">
+        Statistics
+      </span>
+    </span>
+    [#?]{#local_use#}[#>]
+    <span class="login"> <a href="/auth{#if]#{+?userid}[#>]/logout[#}"><img alt="login/logout" src="/images/common/{#if]#{+?userid}[#>]remove[#else]add[#}-key-icon.png"/> <span class="white">  #{userid} </span></a></span>
+    [#?]end [#>]
+    {#hide]
+    <!-- MAIN MENU: Top horizontal menu of the site.  Use class="here" to turn the current page tab on -->
+    <div id="mainMenu"> 
+    #{content_for_mainmenu}  
+    </div>[#hide}
+  </div>
+  <!-- CONTENT: Holds all site content except for the footer.  This is what causes the footer to stick to the bottom -->
+  <div id="content">
+  	{#hide]
+    <span>  <a href="{#pagename]current_page[#lang]{#lang][#fr]en[#en]fr[#}[#}"><img alt="{#lang][#fr]En[#en]Fr[#}" src="/images/{#lang][#fr]en[#en]fr[#}.gif" /></a></span>
+    <div id="contentLeft">
+      #{yield_left?}
+      <!-- Creates the rounded corner on the bottom of the left menu -->
+      <div class="bottomCorner">
+      <img src="/images/reflection/corner_sub_br.gif" alt="bottom corner" class="vBottom"/>
+      </div>
+    </div>[#hide}
+    
+    #{yield}
+    
+  </div>
+
+
+
+
+  <!-- FOOTER: Site footer for links, copyright, etc. -->
+  <div id="footer">
+    <div id="footerLeft">
+    <a href="http://fullahead.org" title="designed by fullahead.org" class="fullAhead"></a>{#lastmodified#}
+  </div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,81 @@
+[#=]::header.mathml?[false]
+[#?]#{header.mathml}[#>]
+[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">]
+[#?]else[#>]
+[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">]
+[#?]end
+[#=]::header.title?[Dyndoc]
+[#=]::header.author?[RCqls]
+[#=]::header.keywords?[Dyndoc community, Dyndoc language]
+[#=]::header.description?[Dyndoc language website]
+[#>]
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-EN">
+
+<head>
+  <title> #{header.title?} </title>
+  <META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8"/>
+  <!--<meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8" />-->
+  <meta name="author" content="#{header.author}" />
+  <meta name="keywords" content="#{header.keywords}" />
+  <meta name="description" content="#{header.description}" />
+  <meta name="robots" content="index, follow, noarchive" />
+  <meta name="googlebot" content="noarchive" />
+
+#{header.css?}
+
+[#=]::header.css_pre?[CssCqls,FileUploader,TabBar,AceEditor][#>]{#require4html]#{header.css_pre}[#}
+
+[#=]::header.css_uv?[amy]
+[#>]
+  {#rb>]
+  #puts "layout";p #{=_.css4uv}
+  for css4uv in #{=header.css_uv}.split(",").uniq.sort do
+    #p css4uv
+    #puts "css binding";p binding;p eval("local_variables",binding)
+    {#>]<link href="/stylesheets/uv/css/:{css4uv}.css" media="screen,projection,print" rel="Stylesheet" type="text/css" /><\n>[#}
+  end
+  [#}
+[#=]header.css_post?[JQuery][#>]{#require4html]#{header.css_post}[#}
+[#>]<script src="http://cdn.jquerytools.org/1.2.6/all/jquery.tools.min.js"></script>
+[#?]#{header.mathml}[#>]
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: {
+      TagSide: "left",
+      Macros: {
+        Est: ['\\widehat{#1}\\left({\\bf #2}\\right)',2],
+        cqlshat: ['\\widehat{#1}',1],
+        SuitApprox: ['\\stackrel{approx.}{\\leadsto}']
+      }
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML-full">
+</script>
+[#?]end[#>]
+
+</head>
+<body>
+[#=]::body.begin?[
+<!-- HEADER: Holds title, subtitle and header images -->
+  <div id="header">
+    <!-- top rounded corner -->
+    <img src="/images/reflection/corner_tl.gif" alt="corner" style="float:left;" />
+
+
+    <!-- Site title and subTitle -->
+    <span class="title">#{layout.logo?}
+      <span class="white">#{layout.team?}</span> team
+      <span class="subTitle">
+        Statistics
+      </span>
+    </span>
+  </div>
+  <!-- CONTENT: Holds all site content except for the footer.  This is what causes the footer to stick to the bottom -->
+  <div id="content">
+  ]
+[#rb<]p #{=body.begin}[#>]
+#{body.begin}

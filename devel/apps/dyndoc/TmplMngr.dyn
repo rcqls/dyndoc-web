@@ -1,0 +1,6 @@
+[#%]Objectif: une gestion des "layouts" pour la génération des pages web avec dyndoc pour un site statique (i.e. les pages sont construites au préalable même si elles peuvent interagir avec un serveur via ajax).
+Pour débuter: préparer dans un simple fichier dyn à placer dans view/layout un fichier dyn qui se charge de définir les paramètres des headers. Ce fichier sera appelé en début de chaque page générée.
+
+{#hide][#<<]layout/cqls[#hide}
+
+Dans ce fichier, gérer tout ce qui concerne le layout. Il serait bien que la page elle-même puisse modifier le layout grâce au système d'ancre.

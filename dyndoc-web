@@ -1,0 +1,226 @@
+#!/usr/bin/env ruby
+require 'rack'
+require 'rack/server'
+require 'dante'
+
+DYNDOCWEBMODE=(File.basename(__FILE__)=="dyndoc-web" ? :local : :server )
+$dyndoc_web={:mode => DYNDOCWEBMODE}
+$dyndoc_web[:local] = $dyndoc_web[:mode] == :local
+
+$dyndoc_web[:root] = $dyndoc_web[:local] ? File.join(ENV["HOME"],"dyndoc","web-devel") : "/export/cqlsWeb"
+
+$dyndoc_web[:pid]=File.join($dyndoc_web[:root],'dyndoc-web.pid')
+$dyndoc_web[:port]=3001
+
+$dyndoc_web[:devel_path] = File.join($dyndoc_web[:root],$dyndoc_web[:local] ? "devel" : "dynam")
+$dyndoc_web[:vendor_path] = File.join($dyndoc_web[:root],$dyndoc_web[:local] ? "vendor" : "common")
+
+$dyndoc_web[:public_path] = $dyndoc_web[:local] ? "/public" : "/public"
+$dyndoc_web[:public_rooms] = $dyndoc_web[:local] ? "/public/rooms" : "/public/rooms"
+$dyndoc_web[:public_site] = $dyndoc_web[:local] ? "/public/site" : "/public/site"
+$dyndoc_web[:public_rsrc] = $dyndoc_web[:local] ? "/public/rsrc" : "/public/rsrc"
+$dyndoc_web[:public_world] = $dyndoc_web[:local] ? "/public/world" : "/public/world"
+
+# only if the server needs to be started!
+if !ARGV[0] or ["start"].include? ARGV[0]
+
+	#require 'renee'
+	require 'scorched'
+	dynlib_path=nil
+	# The two first paths are for devel mode (the second one is maybe obsolete)
+	# The two last paths are for production mode (the last one is closed to be abandonned)
+	[["Github","dyndoc"],["Dropbox","Dyndoc","System","dyndoc.ruby"],["DyndocVB","SharedFolder","System","dyndoc-ruby"],["DyndocVB","System","dyndoc.ruby"],[".gPrj","work","dyndoc.ruby"]].each {|prefix|
+		dynlib_path=Dir[File.join(ENV["HOME"],prefix,"lib")][0] unless dynlib_path
+	}
+	$:.unshift(dynlib_path) if  dynlib_path
+
+	require 'dyndoc/common/tilt'
+	$cfg_dyn={ langs: [:R], working_dir: "" }
+
+	#require "uv"
+	require File.join(ENV["HOME"],"dyndoc","etc","uv","uv") if File.exists? File.join(ENV["HOME"],"dyndoc","etc","uv")
+	require "xmlsimple"
+	require "cgi"
+	require 'thread'
+
+	if $dyndoc_web[:local]
+		["dyndoc_modules","jqueryfiletree"].each do |libname| require File.join($dyndoc_web[:devel_path],'apps/lib',libname) end
+		#(DyndocRackApps=["auth","play","demo","editor","rooms","site","world","sign","rsrc"]).each do |rack_app| require File.join($dyndoc_web[:devel_path],'apps/rack/'+rack_app) end
+		(DyndocRackApps=["play","demo","editor","rooms","site","world","rsrc"]).each do |rack_app| require File.join($dyndoc_web[:devel_path],'apps/rack/'+rack_app) end
+	else
+		#Clever: Only Rack::Session has to exists before requiring redis-store to make Rack::Session::Redis available
+		begin 
+			require 'redis-rack'
+		rescue LoadError
+			require 'redis-store' 
+		end
+		redishost= ENV["REDIS_HOST"] || 'localhost'
+		redisport= ENV["REDIS_PORT"] || 6379
+		$redis = Redis.new(:host => redishost, :port => redisport) #needed here since used in some following libraries!
+
+
+		["dyndoc_modules","jqueryfiletree"].each do |libname| require File.join($dyndoc_web[:devel_path]+'/apps/lib/'+libname) end
+		(DyndocRackApps=["auth","play","demo","editor","rooms","site","world","sign","rsrc"]).each do |rack_app| require File.join($dyndoc_web[:devel_path]+'/apps/rack/'+rack_app) end
+	end
+
+	Tilt::DynDocTemplate.init <<-DynDocLibs
+	Tools/Web/TabBar
+	Tools/Web/JQueryTools
+	Tools/Web/DHtmlX
+	Tools/Web/Code
+	Tools/Web/Ace
+	Tools/Web/Html
+	Tools/Web/Html/Styles
+	Tools/Web/Html/JQuery
+	Tools/Web/Layout
+	Tools/Tex/Tools
+	DynDocLibs
+
+
+	class DyndocWeb < Scorched::Controller
+		include DyndocLogin
+	  	include DyndocRenee
+		 
+		render_defaults.merge!(
+	  		dir: File.join($dyndoc_web[:devel_path],"views"),
+	  		engine: 'dyn_html',
+	  		layout: "demo/layout/R_cqls.dyn".to_sym
+		)
+		##app = Rack::Builder.new do
+
+		middleware << proc do
+
+			## idée: ranger toutes les ressources (css, img, js, ...) par "tool": ace, dHtmlX, jqueryTools, jqueryEasyUI (jquery-easyui)
+
+			use Rack::Static, :urls => ['/images','/stylesheets','/tools','/javascripts'], :root => "#{$dyndoc_web[:vendor_path]}"
+
+			use Rack::Static, :urls => ['/dHtmlX','/ace'], :root => "#{$dyndoc_web[:vendor_path]}/tools"
+
+			use Rack::Static, :urls => ['/Downloads'], :root => 'public/rsrc'
+
+
+			unless $dyndoc_web[:local]
+				use Rack::Session::Redis
+			else
+				use Rack::Session::Cookie, :secret => ENV['RACK_COOKIE_SECRET']
+			end
+
+		end
+
+	##run Renee {
+
+
+		before do
+		#puts "for every path!"
+
+			current_user_init unless $dyndoc_web[:local]
+
+=begin
+		File.open("/export/cqlsWeb/toto.log","a") do |f|
+		f << env['PATH_INFO'] << "\n"
+	    f << env['SCRIPT_NAME'] << "\n"
+	    f << env['HTTP_HOST'] << "\n"
+	    f << env['SERVER_NAME'] << "\n"
+	    f << env['SERVER_PORT'] << "\n"
+	    end
+=end
+
+			init_referer
+
+			init_http_host
+
+		#puts "rack-session!!!";p request.env["rack.session"]
+
+		end
+
+		get '/', host: "sagag6.upmf-grenoble.fr" do
+			redirect "/dev"
+		end
+
+		get '/', host: "sagag6.upmf-grenoble.fr" do
+			redirect "/CqlsCours/index.html"
+		end
+
+		get '/' do
+			redirect ($dyndoc_web[:local] ? "/dev" : "/index.html")
+		end
+
+		# path '/' do
+		# 	get {
+		# 		case env['SERVER_NAME'].strip 
+		# 		when "sagag6.upmf-grenoble.fr"
+		# 			redirect! "/dev"
+		# 		when "cqls.upmf-grenoble.fr"
+		# 			redirect! "/CqlsCours/index.html"
+		# 		else
+		# 			redirect!($dyndoc_web[:local] ? "/dev" : "/index.html")
+		# 		end
+		# 	}
+		# end
+
+		get '/dev' do
+			redirect "/run/devel.dyn"
+		end
+
+		get '/dev2' do
+			redirect "http://dyndoc.upmf-grenoble.fr:3002/run/devel.dyn"
+		end
+
+		DyndocRackApps.each do |rack_app|
+			map pattern: '/'+rack_app, target: eval("Dyndoc"+rack_app.capitalize)	
+		end
+
+		route '/admin' do
+			redirect "/sign/admin"
+		end
+
+		get '/login' do
+			redirect 'auth'
+		end
+
+		controller '/run' do
+			#get { inline_safe! "path is /run/index", :dyn }
+
+			get "/*.dyn" do |tmpl|
+				render_safe tmpl.to_sym, engine: :dyn, layout: "demo/layout/R_cqls.dyn".to_sym 
+			end
+
+			get "/*.dyn_tex" do |tmpl|
+				render_safe tmpl.to_sym, engine: :dyn_ttm, layout: "demo/layout/R_cqls.dyn".to_sym
+			end
+
+		end
+
+		get "/index.html" do
+			"hello from dyndoc"
+		end
+
+		route "**.html" do |page|
+				redirect "/world/"+page
+		end
+
+		route /\/.*\.(png|jpg|jpeg|css)/ do |page|
+				redirect "/rsrc/"+page
+		end
+
+	end
+
+end
+
+case ARGV[0]
+when "start"
+	# Set default port
+	Dante::Runner.new('dyndocWeb').execute(:daemonize=> true, :port => $dyndoc_web[:port], :pid_path => $dyndoc_web[:pid]) {|opts|
+	  Rack::Server.start :app=> DyndocWeb, :Port => opts[:port] , :server => 'thin'
+	}
+when "status"
+	puts "dyndoc-web is "+((File.exists? $dyndoc_web[:pid]) ? "running" : "not running")+"!"
+when "restart"
+	Dante::Runner.new('dyndocWeb').execute(:daemonize => true, :restart => true, :port => $dyndoc_web[:port], :pid_path => $dyndoc_web[:pid]) {|opts|
+	  Rack::Server.start :app=> DyndocWeb, :Port => opts[:port] , :server => 'thin'
+	}
+when "stop"
+	Dante::Runner.new('dyndocWeb').execute(:kill=> true, :pid_path => $dyndoc_web[:pid])
+else
+	Rack::Server.start :app=> DyndocWeb, :Port => $dyndoc_web[:port] , :server => 'thin'
+end

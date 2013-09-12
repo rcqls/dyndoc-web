@@ -1,0 +1,126 @@
+[#require]Tools/Web/Layout/CQLS
+[#main][#>]
+<h3>Account admin</h3>
+[#?]#{+?signin_status}[#>]<div style="color: yellow"><b>Warning!</b> {#case]#{signin_status}
+[#when]used_id[#>]Username already used!
+[#when]used_pub[#>]Public name already used!
+[#when]used_room[#>]Sorry unable to create the room since alread in use!
+[#when]used_uid[#>]Another user already uses the same account for authentifcation!
+[#case}
+</div>
+[#=]::signin_status[][#?]end
+[#>]
+<td><table cellspacing="0" cellpadding="2" border="0">
+	<tr>
+		<td><b>Current username: </b></td><td><div id="user">##{session.id}</div></td>
+		<td><button style="border: #707070 1px solid; cursor: pointer;" onclick="adminUserName();">replaced</button></td>
+		<td><div> by: </div></td><td><div id="user-input" style="color: white">Click here!</div></td>	
+		<td><div id="user-check" style="color: red"></div></td>
+	</tr>
+</tr>
+</table></td>
+
+<td><table cellspacing="0" cellpadding="2" border="0">
+	<tr>
+		<td><b>Current public name: </b></td><td><div id="pub">##{session.pub}</div></td>
+		<td><button style="border: #707070 1px solid; cursor: pointer;" onclick="adminPubName();">replaced</button></td>
+		<td> by: </td><td><div id="pub-input" style="color: white">Click here!</div></td>
+		<td><div id="pub-check" style="color: red"></div></td>
+		
+	</tr>
+</tr>
+</table></td>
+
+<td><table cellspacing="0" cellpadding="2" border="0">
+	<tr>
+		<td><b>Current auth mode: </b></td><td><div id="mode">##{session.mode}</div></td>
+		<td><button style="border: #707070 1px solid; cursor: pointer;" onclick="adminMode();">replaced</button></td>
+	    <td> by: </td><td><div id="mode-answer" style="color: white">Choose a logo!</div></td>
+	    <td><img id="google "  src="/images/omniauth/google_small.png" onclick="changeMode(this);"    style="border: #707070 1px solid; width: 18px; height: 18px; cursor: pointer;"></td>
+	    <td><img id="facebook"  src="/images/omniauth/facebook_small.png"  onclick="changeMode(this);"   style="border: #707070 1px solid; width: 18px; height: 18px; cursor: pointer;"></td>
+	    <td><img id="twitter "  src="/images/omniauth/twitter_small.png"  onclick="changeMode(this);"   style="border: #707070 1px solid; width: 18px; height: 18px; cursor: pointer;"></td>
+		</tr>
+</table></td>
+
+<script>
+
+function changeMode(imgObj) {
+	//alert("id:"+imgObj.id);
+	//alert($("#mode-answer").html());
+    $("#mode-answer").html(imgObj.id);
+}
+
+function adminUserName() {
+	//alert("id:"+$('#user-input').html()+" and mode:"+$("#mode-answer").html());
+	if ($('#user-check').text() == "=> available") {
+		$.post("/sign/admin/user",{id: $('#user-input').html()},
+		function(mode) {
+			//alert("mode::::"+mode);
+			$('#user-check').html("");
+			$('#user').html($('#user-input').html());
+			$('#user-input').html("Click here!");
+		},
+		"text"
+		)
+	} else {
+		$('#user-check').html("=> field required");
+		//alert("check:"+$('#user-check').text());
+	}
+};
+
+function adminPubName() {
+	//alert("id:"+$('#user-input').html()+" and mode:"+$("#mode-answer").html());
+	if ($('#pub-check').text() == "=> available") {
+		$.post("/sign/admin/pub",{pub: $('#pub-input').html()},
+		function(mode) {
+			$('#pub-check').html("");
+			$('#pub').html($('#pub-input').html());
+			$('#pub-input').html("Click here!");
+		},
+		"text"
+		)
+	} else {
+		$('#pub-check').html("=> field required!");
+	}
+};
+
+function adminMode() {
+	$.post("/sign/admin/mode",{mode: $("#mode-answer").html()},
+	function(mode) {
+		//alert("mode::::"+mode);
+		$(window.location).attr('href', '/auth/'+mode); //to redirect to the authentification page!
+	},
+	"text"
+	)
+};
+
+$("#user-input").editInPlace({
+		success: function(res) {
+			if(res=="__not_free__") {
+				$("#user-input").html("Click here!");
+				$("#user-check").html("=> already exists!");
+			} else {
+				$("#user-check").html("=> available");
+			}
+		},
+		url: "/sign/user",
+		bg_over: "#0cc",
+		field_type: "text"
+	});
+
+$("#pub-input").editInPlace({
+		success: function(res) {
+			if(res=="__not_free__") {
+				$("#pub-input").html("Click here!");
+				$("#pub-check").html("=> already exists!");
+			} else {
+				$("#pub-check").html("=> available");
+			}
+		},
+		url: "/sign/public_user",
+		bg_over: "#0cc",
+		field_type: "text"
+	});
+
+
+</script>

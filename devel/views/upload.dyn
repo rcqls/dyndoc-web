@@ -1,0 +1,17 @@
+<div id="contentAllLeft">
+
+	<h2>jQuery File Tree for Ruby on Rails</h2>
+	<div id="fileTree" class="demo"></div>
+
+	<script type="text/javascript">
+    $(document).ready( function() {
+        $('#fileTree').fileTree({ root: 'dynam/rsrc/', script: '/filetree', folderEvent: 'dblclick' }, function(file) {
+            alert(file);
+        });
+    });
+	</script>
+
+	{#new]demo[#of]FileUploader[#}
+
+
+</div>

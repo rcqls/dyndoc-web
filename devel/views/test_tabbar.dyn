@@ -1,0 +1,15 @@
+[#>]{#tabbar]a
+[#,]style[<<width[800px]<<height[650px]<<title[50px]]
+[#,]url[http://cqls.upmf-grenoble.fr/cours/public/StatInf]
+[#bar]page[<<title[Poly]<<pdf[Poly.pdf]]
+[#bar]page[<<title[FicheR]<<pdf[ficheR.pdf]]
+[#tabbar}
+
+
+{#tabbar]b
+[#,]style[<<width[800px]<<height[650px]<<title[50px]]
+[#,]url[http://cqls.upmf-grenoble.fr/cours/public/StatInf]
+[#rb>]for cours in 1..7 do {#>][#bar]page[<<title[Cours:{cours}]<<pdf[Cours:{cours}.pdf]][#>} end
+[#bar]page[<<title[Poly]<<pdf[Poly.pdf]]
+[#bar]page[<<title[FicheR]<<pdf[ficheR.pdf]]
+[#tabbar}

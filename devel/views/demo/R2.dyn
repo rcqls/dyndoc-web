@@ -1,0 +1,60 @@
+<div id="contentAllLeft">
+	<select id="chooser">
+	[#rb>]$demo_dyndoc_codes_for_site[:R].keys.sort.map{|k| "<option>"+k+"</option>"}.join("\n")[#>]
+	</select>
+	<div style="float:left">To update, click the code below or the current dyndoc example: </div> 
+	<div id="editme" style="float:center">Dyndoc code!</div> 
+
+	<div id="editme-rawcode">dyndoc code</div>
+	<div id="editme-uvcode">dyndoc code</div>
+</div>
+
+
+<script type="text/javascript">
+//function to select example!
+function selectChoice() {
+	//alert(value);
+	var choice=$("#chooser").val()
+	$.post(	"/demo/rverb_choices",
+			"update_value="+choice+"&style=amy",
+			function(html){
+				//alert("taco:"+html);
+				$.taconite(html);
+				$('#editme-result').html($('#editme-result').text());
+				//alert("result:"+$('#editme-result').html());
+				$('#editme').html($('#editme-uvcode').html());
+			}
+	);
+};
+//First initialization!!!
+selectChoice();
+//bind selection!
+$("#chooser").change(selectChoice);
+//these divs are  used to fetch different contents with taconite!
+$('#editme-rawcode').hide();
+$('#editme-uvcode').hide();
+//the delegate function!
+var mydeleg= {
+	willOpenEditInPlace: function(dom,b) {
+		return $('#editme-rawcode').text();
+	}
+};
+//In place editor for code!
+$("#editme").editInPlace({
+		//callback: function(unused, enteredText) { },
+		success: function(html) {
+			$.taconite(html); 
+			/* alert($('#editme-hidden-code').val()); */
+			$('#editme-result').html($('#editme-result').text());
+			$('#editme').html($('#editme-uvcode').html());
+		},
+		url: "/play/rverb",
+		bg_over: "#cff",
+		field_type: "textarea",
+		textarea_rows: "15",
+		textarea_cols: "90",
+		// saving_image: "./images/ajax-loader.gif"
+		save_if_nothing_changed: true,
+		delegate: mydeleg
+	});
+</script>

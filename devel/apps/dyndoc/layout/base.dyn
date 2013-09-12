@@ -1,0 +1,70 @@
+[#=]::document.mathml?[true]
+[#=]::document.html5?[false]
+[#?]#{document.mathml}[#>]
+[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">]
+[#?]else[#>][{#if]#{document.html5}[#>][<!DOCTYPE html>]
+[#else][<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">]
+[#if}]
+[#?]end
+[#=]::document.title?[Dyndoc]
+[#=]::document.author?[RCqls]
+[#=]::document.keywords?[Dyndoc community, Dyndoc language]
+[#=]::document.description?[Dyndoc language website]
+[#=]::document.charset?[utf-8]
+[#>]
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-EN">
+
+<head>
+  <title> #{document.title?} </title>
+  <META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=#{document.charset}"/>
+  <!--<meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8" />-->
+  <meta name="author" content="#{document.author}" />
+  <meta name="keywords" content="#{document.keywords}" />
+  <meta name="description" content="#{document.description}" />
+  <meta name="robots" content="index, follow, noarchive" />
+  <meta name="googlebot" content="noarchive" />
+
+#{document.head.css?}
+
+[#=]::document.head.css_pre?[CssCqls,FileUploader,TabBar,AceEditor,JQueryToolsNavStyle][#>]{#require4html]#{document.head.css_pre}[#}
+
+[#=]::document.head.css_uv?[amy]
+[#=]::document.rsrcSrvUrl?[http://sagag6.upmf-grenoble.fr]
+[#>]
+  {#rb>]
+  #puts "layout";p #{=_.css4uv}
+  for css4uv in #{=document.head.css_uv}.split(",").uniq.sort do
+    #p css4uv
+    #puts "css binding";p binding;p eval("local_variables",binding)
+    {#>]<link href="#{document.rsrcSrvUrl}/stylesheets/uv/css/:{css4uv}.css" media="screen,projection,print" rel="Stylesheet" type="text/css" /><\n>[#}
+  end
+  [#}
+[#rb<]puts "RBBBB!!!";p #{=document.rsrcSrvUrl};p #{=document.head.css_post};p "#{document.rsrcSrvUrl?}";p "#{document.rsrcSrvUrl?}"
+[#=]::document.head.css_post?[JQueryAll][#>]{#require4html]#{document.head.css_post}[#}
+[#?]#{document.mathml}[#>]
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: {
+      TagSide: "left",
+      Macros: {
+        Est: ['\\widehat{#1}\\left({\\bf #2}\\right)',2],
+        cqlshat: ['\\widehat{#1}',1],
+        SuitApprox: ['\\stackrel{approx.}{\\leadsto}']
+      }
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML-full">
+</script>
+[#?]end[#>]
+</head>
+<body>
+[#=]::document.style?[cqls]
+[#rb<]Dyndoc.warn "style",#{document.style}
+[#>]
+{#layout]#{document.style}[#code]#{yield}[#}
+</body>
+</html>

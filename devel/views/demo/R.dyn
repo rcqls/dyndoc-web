@@ -1,0 +1,10 @@
+<div id="contentAllLeft">
+	<h3>Live demo of R code</h3> 
+	{#new]codeR[#of]CodeEdit[#lang]R[#first][#new}
+	{#new]demoR[#of]CodeDemoChooser[#,]:codeR[#}
+	<div style="float:left">To update, click the code below or the current dyndoc example: </div> 
+	{#init]codeR[#}
+	{#js]codeR[#}
+</div>
+
+{#js]demoR[#}

@@ -1,0 +1,4 @@
+[#=]::header.mathml[true]
+[#<<]layout/header
+[#>]#{yield}
+[#<<]layout/footer
