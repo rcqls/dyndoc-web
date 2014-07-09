@@ -11,6 +11,7 @@ $dyndoc_web[:root] = $dyndoc_web[:local] ? File.join(ENV["HOME"],"dyndoc","web-d
 
 $dyndoc_web[:pid]=File.join($dyndoc_web[:root],'dyndoc-web.pid')
 $dyndoc_web[:port]=3001
+$dyndoc_web[:log_path]=File.join($dyndoc_web[:root],'dyndoc-dante.log')
 
 $dyndoc_web[:devel_path] = File.join($dyndoc_web[:root],$dyndoc_web[:local] ? "devel" : "dynam")
 $dyndoc_web[:vendor_path] = File.join($dyndoc_web[:root],$dyndoc_web[:local] ? "vendor" : "common")
@@ -27,12 +28,14 @@ if !ARGV[0] or ["start"].include? ARGV[0]
 	#require 'renee'
 	require 'scorched'
 	dynlib_path=nil
+	## TODO:  A placer à l'extérieur car c'est une config utilisateur!
 	# The two first paths are for devel mode (the second one is maybe obsolete)
 	# The two last paths are for production mode (the last one is closed to be abandonned)
 	[["Github","dyndoc"],["Dropbox","Dyndoc","System","dyndoc.ruby"],["DyndocVB","SharedFolder","System","dyndoc-ruby"],["DyndocVB","System","dyndoc.ruby"],[".gPrj","work","dyndoc.ruby"]].each {|prefix|
 		dynlib_path=Dir[File.join(ENV["HOME"],prefix,"lib")][0] unless dynlib_path
 	}
 	$:.unshift(dynlib_path) if  dynlib_path
+
 
 	require 'dyndoc/common/tilt'
 	$cfg_dyn={ langs: [:R], working_dir: "" }
@@ -63,6 +66,8 @@ if !ARGV[0] or ["start"].include? ARGV[0]
 		(DyndocRackApps=["auth","play","demo","editor","rooms","site","world","sign","rsrc"]).each do |rack_app| require File.join($dyndoc_web[:devel_path]+'/apps/rack/'+rack_app) end
 	end
 
+
+## TODO:  A placer dans un fichier extérieur car c'est une config utilisateur ou qui peut-être ajouté par l'utilisateur!
 	Tilt::DynDocTemplate.init <<-DynDocLibs
 	Tools/Web/TabBar
 	Tools/Web/JQueryTools
@@ -76,11 +81,12 @@ if !ARGV[0] or ["start"].include? ARGV[0]
 	Tools/Tex/Tools
 	DynDocLibs
 
-
 	class DyndocWeb < Scorched::Controller
 		include DyndocLogin
 	  	include DyndocRenee
 		 
+
+		## TODO:  A placer à l'extérieur car le layout peut être défini par l'utilisateur!
 		render_defaults.merge!(
 	  		dir: File.join($dyndoc_web[:devel_path],"views"),
 	  		engine: 'dyn_html',
@@ -133,10 +139,11 @@ if !ARGV[0] or ["start"].include? ARGV[0]
 
 		end
 
+		## TODO:  Peut-être n'a rin à fiare pour une utilisation en mode local
 		get '/', host: "sagag6.upmf-grenoble.fr" do
 			redirect "/dev"
 		end
-
+		## TODO:  Peut-être n'a rin à fiare pour une utilisation en mode local
 		get '/', host: "sagag6.upmf-grenoble.fr" do
 			redirect "/CqlsCours/index.html"
 		end
@@ -166,6 +173,7 @@ if !ARGV[0] or ["start"].include? ARGV[0]
 			redirect "http://dyndoc.upmf-grenoble.fr:3002/run/devel.dyn"
 		end
 
+		## TODO: peut-être que ceci peut-être aussi ajouté par l'utilisateur
 		DyndocRackApps.each do |rack_app|
 			map pattern: '/'+rack_app, target: eval("Dyndoc"+rack_app.capitalize)	
 		end
@@ -210,17 +218,17 @@ end
 case ARGV[0]
 when "start"
 	# Set default port
-	Dante::Runner.new('dyndocWeb').execute(:daemonize=> true, :port => $dyndoc_web[:port], :pid_path => $dyndoc_web[:pid]) {|opts|
+	Dante::Runner.new('dyndocWeb').execute(:daemonize=> true, :port => $dyndoc_web[:port], :pid_path => $dyndoc_web[:pid],:log_path=>$dyndoc_web[:log_path]) {|opts|
 	  Rack::Server.start :app=> DyndocWeb, :Port => opts[:port] , :server => 'thin'
 	}
 when "status"
 	puts "dyndoc-web is "+((File.exists? $dyndoc_web[:pid]) ? "running" : "not running")+"!"
 when "restart"
-	Dante::Runner.new('dyndocWeb').execute(:daemonize => true, :restart => true, :port => $dyndoc_web[:port], :pid_path => $dyndoc_web[:pid]) {|opts|
+	Dante::Runner.new('dyndocWeb').execute(:daemonize => true, :restart => true, :port => $dyndoc_web[:port], :pid_path => $dyndoc_web[:pid],:log_path=>$dyndoc_web[:log_path]) {|opts|
 	  Rack::Server.start :app=> DyndocWeb, :Port => opts[:port] , :server => 'thin'
 	}
 when "stop"
-	Dante::Runner.new('dyndocWeb').execute(:kill=> true, :pid_path => $dyndoc_web[:pid])
+	Dante::Runner.new('dyndocWeb').execute(:kill=> true, :pid_path => $dyndoc_web[:pid],:log_path=>$dyndoc_web[:log_path])
 else
 	Rack::Server.start :app=> DyndocWeb, :Port => $dyndoc_web[:port] , :server => 'thin'
 end

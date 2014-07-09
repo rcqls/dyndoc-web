@@ -24,7 +24,7 @@ class DyndocRsrc < Scorched::Controller
 					#p res
 					res
 				}
-				#p file
+				p file
 				halt "No rsrc file #{filename}" if file.empty?
 				run Rack::File.new(file[0])
 		end
@@ -70,7 +70,7 @@ class DyndocRsrc < Scorched::Controller
 	  						e={"DT_RowClass" => request.params["RowClass"]} if request.params["RowClass"]
 	  						row[1..-1].each_with_index {|r,i| e[i.to_s]=r}
 	  						e
-	  					}
+	  				}
 
 					res={
 						"sEcho" => echo,
